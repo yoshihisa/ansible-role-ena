@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: ena
   author: Yoshihisa
   description: Installs the ENA driver required for AWS Enhanced Networking (SR-IOV)
   license: MIT
