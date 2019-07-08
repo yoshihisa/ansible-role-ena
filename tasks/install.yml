@@ -29,23 +29,23 @@
 - name: download_driver_archive
   get_url:
     url: "https://github.com/amzn/amzn-drivers/archive/ena_linux_{{ ena_version }}.tar.gz"
-    dest: /tmp/ena_linux_{{ ens_version }}.tar.gz
+    dest: /tmp/ena_linux_{{ ena_version }}.tar.gz
 
 - name: unpack_driver_source
   unarchive:
-    src: "/tmp/ena_linux_{{ ens_version }}.tar.gz"
+    src: "/tmp/ena_linux_{{ ena_version }}.tar.gz"
     dest: /usr/src
     copy: no
 
-- name: state_mv_driver_source
-  state:
+- name: stat_mv_driver_source
+  stat:
     path: "/usr/src/amzn-drivers-{{ ena_version }}"
-  register: source_dir_state
+  register: source_dir_stat
 
 - name: mv_driver_source
-  commnad: mv /usr/src/amzn-drivers-ena_linux_{{ ena_version }} /usr/src/amzn-drivers-{{ ena_version }}
-  when: not source_dir_state.exists
-    
+  command: "mv /usr/src/amzn-drivers-ena_linux_{{ ena_version }} /usr/src/amzn-drivers-{{ ena_version }}"
+  when: not source_dir_stat.stat.exists
+
 - name: set_dkms_config
   template:
     src: dkms.conf.j2
