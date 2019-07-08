@@ -1,4 +1,4 @@
-# Ansible Role - yoshihisa:ixgbevf
+# Ansible Role - yoshihisa:ena
 
 This Ansible role provides a ENA driver for SR-IOV using DKMS.
 
