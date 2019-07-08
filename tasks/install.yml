@@ -18,7 +18,7 @@
       - kernel-headers-{{ kernel_version.stdout  }}
       - kernel-devel-{{ kernel_version.stdout  }}
       - perl
-    state: latest
+    state: present
 
 - name: copy_local_tarball
   copy:
