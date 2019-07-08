@@ -1,0 +1,68 @@
+---
+- name: check_kernel_version
+  shell: uname -r
+  register: kernel_version
+  changed_when: no
+
+- name: install_epel-release
+  yum:
+    name: epel-release
+    state: present
+  become: yes
+
+- name: install_dependancies
+  yum:
+    name:
+      - tar
+      - dkms
+      - kernel-headers-{{ kernel_version.stdout  }}
+      - kernel-devel-{{ kernel_version.stdout  }}
+      - perl
+    state: latest
+
+- name: copy_local_tarball
+  copy:
+    src: files/ena_linux_{{ ena_version }}.tar.gz
+    dest: /tmp/ena_linux_{{ ena_version }}.tar.gz
+  ignore_errors: yes
+
+- name: download_driver_archive
+  get_url:
+    url: "https://github.com/amzn/amzn-drivers/archive/ena_linux_{{ ena_version }}.tar.gz"
+    dest: /tmp/ena_linux_{{ ens_version }}.tar.gz
+
+- name: unpack_driver_source
+  unarchive:
+    src: "/tmp/ena_linux_{{ ens_version }}.tar.gz"
+    dest: /usr/src
+    copy: no
+
+- name: state_mv_driver_source
+  state:
+    path: "/usr/src/amzn-drivers-{{ ena_version }}"
+  register: source_dir_state
+
+- name: mv_driver_source
+  commnad: mv /usr/src/amzn-drivers-ena_linux_{{ ena_version }} /usr/src/amzn-drivers-{{ ena_version }}
+  when: not source_dir_state.exists
+    
+- name: set_dkms_config
+  template:
+    src: dkms.conf.j2
+    dest: "/usr/src/amzn-drivers-{{ ena_version }}/dkms.conf"
+
+- name: add_module_to_dkms
+  command: dkms add -m amzn-drivers -v "{{ ena_version }}"
+  ignore_errors: yes
+
+- name: build_module_via_dkms
+  command: dkms build -m amzn-drivers -v "{{ ena_version }}"
+
+- name: install_module_via_dkms
+  command: dkms install -m amzn-drivers -v "{{ ena_version }}"
+
+- name: update_kernel_module_list
+  command: depmod
+
+- name: rebuild_initrmfs
+  command: dracut -f
