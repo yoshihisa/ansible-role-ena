@@ -13,4 +13,4 @@
   ignore_errors: yes
 
 - name: assert_driver_version
-  assert: { that: "check_result_post_install_driver_version.stdout ==  '{{ ena_version }}'"  }
+  assert: {that: "check_result_post_install_driver_version.stdout ==  '{{ ena_version }}'"}
